@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Tabata Voice Pro</title>
+  <title>Tabata & Run Tracker</title>
   <style>
     :root {
       --bg-idle: #121212;
@@ -32,11 +32,10 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 16px 20px;
+      padding: 14px 18px;
       transition: background-color 0.3s ease;
     }
 
-    /* ヘッダー */
     header {
       display: flex;
       justify-content: space-between;
@@ -50,19 +49,19 @@
     }
 
     .status-badge {
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       font-weight: 800;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
     }
 
     .set-indicator {
-      font-size: 1.05rem;
+      font-size: 0.95rem;
       font-weight: 600;
       opacity: 0.9;
     }
 
     .icon-btn {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.18);
       color: #fff;
       border: none;
       border-radius: 10px;
@@ -72,35 +71,41 @@
       cursor: pointer;
     }
 
-    /* メインタイマー */
     .timer-display {
       text-align: center;
-      margin: 10px 0;
+      margin: 6px 0;
     }
 
     .exercise-banner {
-      font-size: 1.5rem;
+      font-size: 1.55rem;
       font-weight: 800;
-      min-height: 2.2rem;
-      margin-bottom: 4px;
-      padding: 0 8px;
+      min-height: 2.1rem;
+      margin-bottom: 2px;
+      padding: 0 6px;
       word-break: break-word;
     }
 
+    .next-banner {
+      font-size: 0.9rem;
+      font-weight: 600;
+      opacity: 0.85;
+      min-height: 1.3rem;
+      margin-bottom: 4px;
+    }
+
     .time-left {
-      font-size: 7rem;
+      font-size: 6.2rem;
       font-weight: 900;
       line-height: 1;
       font-variant-numeric: tabular-nums;
       letter-spacing: -0.03em;
     }
 
-    /* 設定パネル */
     .settings-container {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      max-height: 52dvh;
+      gap: 9px;
+      max-height: 56dvh;
       overflow-y: auto;
     }
 
@@ -111,11 +116,10 @@
     .card {
       background: var(--card-bg);
       border-radius: 14px;
-      padding: 12px;
+      padding: 11px 12px;
       backdrop-filter: blur(10px);
     }
 
-    /* プリセットバー */
     .preset-row {
       display: flex;
       gap: 8px;
@@ -128,7 +132,7 @@
       border: 1px solid rgba(255, 255, 255, 0.25);
       border-radius: 8px;
       padding: 8px 10px;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 600;
     }
 
@@ -137,8 +141,8 @@
       color: #fff;
       border: none;
       border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 0.85rem;
+      padding: 8px 11px;
+      font-size: 0.82rem;
       font-weight: 700;
       cursor: pointer;
     }
@@ -147,48 +151,69 @@
       background: rgba(239, 68, 68, 0.35);
     }
 
-    /* 数値入力グリッド */
-    .grid-inputs {
+    /* ラン距離・体重・セット数の3列グリッド */
+    .metrics-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
     }
 
-    .input-group {
+    .metric-box {
       display: flex;
       flex-direction: column;
       gap: 3px;
     }
 
-    .input-group label {
-      font-size: 0.75rem;
+    .metric-box label {
+      font-size: 0.72rem;
       opacity: 0.85;
-      font-weight: 600;
+      font-weight: 700;
+      text-align: center;
     }
 
-    .input-group input, .input-group textarea {
+    .metric-box input {
       background: rgba(0, 0, 0, 0.45);
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 8px;
       color: #fff;
       font-size: 1.15rem;
       font-weight: 700;
-      padding: 7px 10px;
+      padding: 6px 4px;
       width: 100%;
-    }
-
-    .input-group input {
       text-align: center;
     }
 
-    .input-group textarea {
-      font-size: 0.95rem;
-      font-weight: 500;
-      resize: none;
-      line-height: 1.4;
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
 
-    /* コントロールボタン */
+    .input-group label {
+      font-size: 0.76rem;
+      opacity: 0.9;
+      font-weight: 600;
+    }
+
+    .helper-text {
+      font-size: 0.7rem;
+      opacity: 0.75;
+      line-height: 1.35;
+    }
+
+    .input-group textarea {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 8px 10px;
+      width: 100%;
+      resize: none;
+      line-height: 1.45;
+    }
+
     .controls {
       display: flex;
       gap: 12px;
@@ -198,7 +223,7 @@
 
     .main-btn {
       flex: 1;
-      padding: 16px;
+      padding: 15px;
       font-size: 1.15rem;
       font-weight: 800;
       border: none;
@@ -223,19 +248,19 @@
 
     .info-bar {
       text-align: center;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       opacity: 0.7;
-      margin-top: 6px;
+      margin-top: 5px;
     }
 
     /* 履歴モーダル */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.9);
       display: none;
       flex-direction: column;
-      padding: 20px;
+      padding: 18px;
       z-index: 100;
       backdrop-filter: blur(8px);
     }
@@ -248,12 +273,34 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       padding-top: env(safe-area-inset-top);
     }
 
-    .modal-header h2 {
-      font-size: 1.2rem;
+    .summary-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .summary-card {
+      background: rgba(37, 99, 235, 0.25);
+      border: 1px solid rgba(96, 165, 250, 0.35);
+      border-radius: 12px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .summary-label {
+      font-size: 0.72rem;
+      opacity: 0.85;
+      margin-bottom: 2px;
+    }
+
+    .summary-value {
+      font-size: 1.25rem;
+      font-weight: 800;
     }
 
     .history-list {
@@ -270,27 +317,44 @@
       padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
     }
 
     .history-meta {
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       opacity: 0.75;
+      display: flex;
+      justify-content: space-between;
     }
 
-    .history-title {
-      font-size: 1rem;
-      font-weight: 700;
+    .history-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 2px 0;
     }
+
+    .badge {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .badge-run { background: rgba(16, 185, 129, 0.3); color: #6ee7b7; }
+    .badge-weight { background: rgba(245, 158, 11, 0.3); color: #fcd34d; }
+    .badge-tabata { background: rgba(239, 68, 68, 0.3); color: #fca5a5; }
 
     .history-exercises {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       opacity: 0.85;
+      white-space: pre-line;
     }
 
     .history-actions {
       display: flex;
       justify-content: flex-end;
+      gap: 8px;
       margin-top: 4px;
     }
 
@@ -299,9 +363,19 @@
       color: #fff;
       border: none;
       border-radius: 6px;
-      padding: 6px 12px;
-      font-size: 0.8rem;
+      padding: 5px 10px;
+      font-size: 0.78rem;
       font-weight: 700;
+      cursor: pointer;
+    }
+
+    .del-history-btn {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ccc;
+      border: none;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 0.78rem;
       cursor: pointer;
     }
   </style>
@@ -312,18 +386,19 @@
     <div style="width: 60px;"></div>
     <div class="header-center">
       <div class="status-badge" id="statusLabel">READY</div>
-      <div class="set-indicator" id="setLabel">SET 0 / 8</div>
+      <div class="set-indicator" id="setLabel">SET 0 / 4</div>
     </div>
     <button class="icon-btn" id="openHistoryBtn">履歴</button>
   </header>
 
   <main class="timer-display">
-    <div class="exercise-banner" id="exerciseBanner"></div>
-    <div class="time-left" id="timeDisplay">20</div>
+    <div class="exercise-banner" id="exerciseBanner">準備</div>
+    <div class="next-banner" id="nextBanner"></div>
+    <div class="time-left" id="timeDisplay">10</div>
   </main>
 
   <section class="settings-container" id="settingsPanel">
-    <!-- ③ プリセット管理 -->
+    <!-- プリセット -->
     <div class="card">
       <div class="preset-row">
         <select id="presetSelect" aria-label="プリセット選択"></select>
@@ -332,31 +407,34 @@
       </div>
     </div>
 
-    <!-- 秒数・セット数 -->
-    <div class="card grid-inputs">
-      <div class="input-group">
-        <label for="prepInput">準備時間 (秒)</label>
-        <input type="number" id="prepInput" value="10" min="0" max="300" inputmode="numeric">
+    <!-- ラン距離・体重・セット数 -->
+    <div class="card metrics-grid">
+      <div class="metric-box">
+        <label for="runDistInput">ラン距離 (km)</label>
+        <input type="number" id="runDistInput" step="0.1" min="0" max="100" placeholder="例: 4.0" inputmode="decimal">
       </div>
-      <div class="input-group">
-        <label for="setsInput">セット数 (回)</label>
-        <input type="number" id="setsInput" value="8" min="1" max="99" inputmode="numeric">
+      <div class="metric-box">
+        <label for="weightInput">体重 (kg)</label>
+        <input type="number" id="weightInput" step="0.1" min="30" max="200" placeholder="例: 79.5" inputmode="decimal">
       </div>
-      <div class="input-group">
-        <label for="workInput">運動時間 (秒)</label>
-        <input type="number" id="workInput" value="20" min="1" max="600" inputmode="numeric">
-      </div>
-      <div class="input-group">
-        <label for="restInput">休憩時間 (秒)</label>
-        <input type="number" id="restInput" value="10" min="0" max="600" inputmode="numeric">
+      <div class="metric-box">
+        <label for="roundsInput">セット数 (周)</label>
+        <input type="number" id="roundsInput" value="4" min="1" max="99" inputmode="numeric">
       </div>
     </div>
 
-    <!-- ② 種目リスト入力 -->
+    <!-- 自由シーケンス入力 -->
     <div class="card">
       <div class="input-group">
-        <label for="exercisesInput">種目リスト（1行に1種目・空欄可・セット数に応じて自動ループ）</label>
-        <textarea id="exercisesInput" rows="3" placeholder="例：&#10;バーピー&#10;マウンテンクライマー&#10;スクワットジャンプ"></textarea>
+        <label for="sequenceInput">タバタ構成（1行に「種目, 秒数, 種類」を入力）</label>
+        <textarea id="sequenceInput" rows="5">準備, 10, prep
+バーピーブロードジャンプ, 20, work
+レスト, 10, rest
+スケータージャンプ, 20, work
+レスト, 10, rest</textarea>
+        <div class="helper-text">
+          ※ 種類は <b>work</b>(運動)・<b>rest</b>(休憩)・<b>prep</b>(準備)。完了時にラン距離・体重も同時記録されます。
+        </div>
       </div>
     </div>
   </section>
@@ -369,32 +447,46 @@
     <div class="info-bar" id="wakeLockStatus">画面常時点灯: 待機中</div>
   </div>
 
-  <!-- ④ 履歴モーダル -->
+  <!-- 履歴モーダル -->
   <div class="modal-overlay" id="historyModal">
     <div class="modal-header">
-      <h2>ワークアウト履歴</h2>
-      <button class="icon-btn" id="closeHistoryBtn">閉じる</button>
+      <h2>トレーニング＆体重記録</h2>
+      <div style="display:flex; gap:8px;">
+        <button class="icon-btn" style="background:#059669;" id="logRunOnlyBtn">+ ランのみ記録</button>
+        <button class="icon-btn" id="closeHistoryBtn">閉じる</button>
+      </div>
     </div>
+
+    <div class="summary-cards">
+      <div class="summary-card">
+        <div class="summary-label">今月の累計ラン距離</div>
+        <div class="summary-value" id="monthlyRunSummary">0.0 km</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">最新体重（初回比）</div>
+        <div class="summary-value" id="weightSummary">-- kg</div>
+      </div>
+    </div>
+
     <div class="history-list" id="historyList"></div>
   </div>
 
   <script>
-    // DOM取得
     const body = document.body;
     const statusLabel = document.getElementById('statusLabel');
     const setLabel = document.getElementById('setLabel');
     const exerciseBanner = document.getElementById('exerciseBanner');
+    const nextBanner = document.getElementById('nextBanner');
     const timeDisplay = document.getElementById('timeDisplay');
     const settingsPanel = document.getElementById('settingsPanel');
     const startPauseBtn = document.getElementById('startPauseBtn');
     const resetBtn = document.getElementById('resetBtn');
     const wakeLockStatus = document.getElementById('wakeLockStatus');
 
-    const prepInput = document.getElementById('prepInput');
-    const workInput = document.getElementById('workInput');
-    const restInput = document.getElementById('restInput');
-    const setsInput = document.getElementById('setsInput');
-    const exercisesInput = document.getElementById('exercisesInput');
+    const runDistInput = document.getElementById('runDistInput');
+    const weightInput = document.getElementById('weightInput');
+    const roundsInput = document.getElementById('roundsInput');
+    const sequenceInput = document.getElementById('sequenceInput');
 
     const presetSelect = document.getElementById('presetSelect');
     const savePresetBtn = document.getElementById('savePresetBtn');
@@ -402,36 +494,31 @@
 
     const openHistoryBtn = document.getElementById('openHistoryBtn');
     const closeHistoryBtn = document.getElementById('closeHistoryBtn');
+    const logRunOnlyBtn = document.getElementById('logRunOnlyBtn');
     const historyModal = document.getElementById('historyModal');
     const historyList = document.getElementById('historyList');
+    const monthlyRunSummary = document.getElementById('monthlyRunSummary');
+    const weightSummary = document.getElementById('weightSummary');
 
-    // ストレージキー
-    const KEY_CURRENT = 'tabata_pro_current';
-    const KEY_PRESETS = 'tabata_pro_presets';
-    const KEY_HISTORY = 'tabata_pro_history';
+    const KEY_CURRENT = 'tabata_run_current_v3';
+    const KEY_PRESETS = 'tabata_run_presets_v3';
+    const KEY_HISTORY = 'tabata_run_history_v3';
 
-    // タイマー状態
-    let state = 'IDLE'; // IDLE, PREP, WORK, REST, DONE
+    let executionQueue = [];
+    let currentIndex = 0;
     let isRunning = false;
-    let currentSet = 1;
-    let totalSets = 8;
-    let phaseDuration = 0;
     let phaseEndTime = 0;
     let remainingWhenPaused = 0;
     let lastSpokenSecond = null;
     let timerInterval = null;
     let wakeLock = null;
 
-    // 1. iOS Safari オーディオセッション（マナーモード貫通）
     function setupAudioSession() {
       if ('audioSession' in navigator) {
-        try {
-          navigator.audioSession.type = 'playback';
-        } catch (e) {}
+        try { navigator.audioSession.type = 'playback'; } catch (e) {}
       }
     }
 
-    // 2. 音声読み上げ
     function speak(text) {
       if (!('speechSynthesis' in window)) return;
       window.speechSynthesis.cancel();
@@ -442,7 +529,6 @@
       window.speechSynthesis.speak(utterance);
     }
 
-    // 3. 画面常時点灯
     async function requestWakeLock() {
       if ('wakeLock' in navigator) {
         try {
@@ -469,47 +555,76 @@
       }
     });
 
-    // 種目リスト取得ヘルパー（セット番号 1-indexed に対応する種目を返す）
-    function getExerciseForSet(setNum) {
-      const lines = exercisesInput.value
-        .split('\n')
-        .map(s => s.trim())
-        .filter(s => s.length > 0);
-      if (lines.length === 0) return '';
-      return lines[(setNum - 1) % lines.length];
+    function parseSequenceText(text) {
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      const steps = [];
+      for (const line of lines) {
+        const parts = line.split(/[,、]/).map(p => p.trim());
+        const name = parts[0] || '運動';
+        const sec = parseInt(parts[1], 10);
+        if (isNaN(sec) || sec <= 0) continue;
+
+        const rawType = (parts[2] || '').toLowerCase();
+        let type = 'work';
+        if (rawType === 'rest' || rawType === 'r' || rawType === '休憩') {
+          type = 'rest';
+        } else if (rawType === 'prep' || rawType === 'p' || rawType === '準備' || rawType === 'アップ') {
+          type = 'prep';
+        } else if (!parts[2] && (name.includes('レスト') || name.includes('休憩'))) {
+          type = 'rest';
+        } else if (!parts[2] && (name.includes('アップ') || name.includes('準備'))) {
+          type = 'prep';
+        }
+        steps.push({ name, sec, type });
+      }
+      return steps;
     }
 
-    // 現在のフォーム設定を取得
-    function getCurrentFormConfig() {
+    function buildFullQueue() {
+      const baseSteps = parseSequenceText(sequenceInput.value);
+      const rounds = Math.max(1, parseInt(roundsInput.value, 10) || 1);
+      const queue = [];
+      for (let r = 1; r <= rounds; r++) {
+        baseSteps.forEach((step, idx) => {
+          queue.push({
+            ...step,
+            round: r,
+            totalRounds: rounds,
+            stepInRound: idx + 1,
+            stepsPerRound: baseSteps.length
+          });
+        });
+      }
+      return queue;
+    }
+
+    function getCurrentConfig() {
       return {
-        prep: parseInt(prepInput.value, 10) || 0,
-        work: parseInt(workInput.value, 10) || 20,
-        rest: parseInt(restInput.value, 10) || 0,
-        sets: parseInt(setsInput.value, 10) || 8,
-        exercises: exercisesInput.value
+        runDist: runDistInput.value,
+        weight: weightInput.value,
+        rounds: parseInt(roundsInput.value, 10) || 4,
+        sequence: sequenceInput.value
       };
     }
 
-    // フォームに設定を反映
-    function applyConfigToForm(cfg) {
-      prepInput.value = cfg.prep ?? 10;
-      workInput.value = cfg.work ?? 20;
-      restInput.value = cfg.rest ?? 10;
-      setsInput.value = cfg.sets ?? 8;
-      exercisesInput.value = cfg.exercises ?? '';
+    function applyConfig(cfg) {
+      if (cfg.runDist !== undefined) runDistInput.value = cfg.runDist;
+      if (cfg.weight !== undefined) weightInput.value = cfg.weight;
+      roundsInput.value = cfg.rounds ?? 4;
+      sequenceInput.value = cfg.sequence ?? '';
       saveCurrentConfig();
       updateIdleDisplay();
     }
 
     function saveCurrentConfig() {
-      localStorage.setItem(KEY_CURRENT, JSON.stringify(getCurrentFormConfig()));
+      localStorage.setItem(KEY_CURRENT, JSON.stringify(getCurrentConfig()));
     }
 
     function loadCurrentConfig() {
-      const saved = localStorage.getItem(KEY_CURRENT);
-      if (saved) {
+      const raw = localStorage.getItem(KEY_CURRENT);
+      if (raw) {
         try {
-          applyConfigToForm(JSON.parse(saved));
+          applyConfig(JSON.parse(raw));
           return;
         } catch (e) {}
       }
@@ -517,42 +632,58 @@
     }
 
     function updateIdleDisplay() {
-      if (state === 'IDLE') {
-        totalSets = parseInt(setsInput.value, 10) || 8;
-        const workSec = parseInt(workInput.value, 10) || 20;
-        setLabel.textContent = `SET 0 / ${totalSets}`;
-        timeDisplay.textContent = workSec;
-        const firstEx = getExerciseForSet(1);
-        exerciseBanner.textContent = firstEx ? `1種目目: ${firstEx}` : '';
+      if (isRunning) return;
+      const queue = buildFullQueue();
+      const rounds = Math.max(1, parseInt(roundsInput.value, 10) || 1);
+      setLabel.textContent = `SET 0 / ${rounds}`;
+      if (queue.length > 0) {
+        exerciseBanner.textContent = queue[0].name;
+        timeDisplay.textContent = queue[0].sec;
+        nextBanner.textContent = queue.length > 1 ? `次: ${queue[1].name} (${queue[1].sec}秒)` : '';
+      } else {
+        exerciseBanner.textContent = 'メニュー未入力';
+        timeDisplay.textContent = '0';
+        nextBanner.textContent = '';
       }
     }
 
-    [prepInput, workInput, restInput, setsInput, exercisesInput].forEach(el => {
+    [runDistInput, weightInput, roundsInput, sequenceInput].forEach(el => {
       el.addEventListener('input', () => {
         saveCurrentConfig();
         updateIdleDisplay();
       });
     });
 
-    // ③ プリセット機能
+    // ホッケー＆HYROX向け初期プリセット
     function getPresets() {
       const raw = localStorage.getItem(KEY_PRESETS);
       if (raw) {
         try { return JSON.parse(raw); } catch (e) {}
       }
-      // デフォルトプリセット
       return [
         {
-          id: 'default_tabata',
-          name: '標準タバタ (20s/10s×8)',
-          prep: 10, work: 20, rest: 10, sets: 8,
-          exercises: ''
+          id: 'day_a',
+          name: 'Day A: HYROX＆ホッケー全身パワー (4分)',
+          rounds: 4,
+          sequence: 'バーピーブロードジャンプ, 20, work\nレスト, 10, rest\nスケータージャンプ, 20, work\nレスト, 10, rest'
         },
         {
-          id: 'default_4ex',
-          name: '全身自重4種目×2周',
-          prep: 10, work: 20, rest: 10, sets: 8,
-          exercises: 'スクワットジャンプ\nマウンテンクライマー\nジャンピングジャック\nバーピー'
+          id: 'day_b',
+          name: 'Day B: スプリント＆脚筋持久力 (15s/15s×4周)',
+          rounds: 4,
+          sequence: '30mシャトルダッシュ, 15, work\nレスト, 15, rest\nジャンピングランジ, 15, work\nレスト, 15, rest'
+        },
+        {
+          id: 'day_c',
+          name: 'Day C: 低衝撃・体幹＆脂肪燃焼 (4分)',
+          rounds: 4,
+          sequence: 'マウンテンクライマー, 20, work\nレスト, 10, rest\nプランクジャック, 20, work\nレスト, 10, rest'
+        },
+        {
+          id: 'custom_sprint',
+          name: 'アップ5s→ダッシュ10s→バーピー10s (×3)',
+          rounds: 3,
+          sequence: 'アップ, 5, prep\nダッシュ, 10, work\nレスト, 5, rest\nバーピー, 10, work\nレスト, 5, rest'
         }
       ];
     }
@@ -563,7 +694,7 @@
 
     function renderPresetSelect(selectedId = null) {
       const presets = getPresets();
-      presetSelect.innerHTML = '<option value="">-- プリセットから選択 --</option>';
+      presetSelect.innerHTML = '<option value="">-- 競技メニューから選択 --</option>';
       presets.forEach(p => {
         const opt = document.createElement('option');
         opt.value = p.id;
@@ -574,20 +705,25 @@
     }
 
     presetSelect.addEventListener('change', () => {
-      const id = presetSelect.value;
-      if (!id) return;
-      const found = getPresets().find(p => p.id === id);
-      if (found) applyConfigToForm(found);
+      const found = getPresets().find(p => p.id === presetSelect.value);
+      if (found) {
+        // ラン距離と体重は現在の入力値を維持しつつメニューだけ読み込む
+        roundsInput.value = found.rounds;
+        sequenceInput.value = found.sequence;
+        saveCurrentConfig();
+        updateIdleDisplay();
+      }
     });
 
     savePresetBtn.addEventListener('click', () => {
-      const name = prompt('プリセット名を入力してください（例：スプリント30-30）');
+      const name = prompt('プリセット名を入力してください');
       if (!name || !name.trim()) return;
       const presets = getPresets();
       const newPreset = {
         id: 'preset_' + Date.now(),
         name: name.trim(),
-        ...getCurrentFormConfig()
+        rounds: parseInt(roundsInput.value, 10) || 4,
+        sequence: sequenceInput.value
       };
       presets.push(newPreset);
       savePresets(presets);
@@ -596,53 +732,90 @@
 
     deletePresetBtn.addEventListener('click', () => {
       const id = presetSelect.value;
-      if (!id) {
-        alert('削除するプリセットを選択してください。');
-        return;
-      }
+      if (!id) return alert('削除するプリセットを選択してください。');
       if (!confirm('選択中のプリセットを削除しますか？')) return;
-      const filtered = getPresets().filter(p => p.id !== id);
-      savePresets(filtered);
+      savePresets(getPresets().filter(p => p.id !== id));
       renderPresetSelect();
     });
 
-    // ④ 履歴保存・表示機能
-    function recordHistory() {
-      const cfg = getCurrentFormConfig();
-      const totalSec = cfg.prep + (cfg.work * cfg.sets) + (cfg.rest * Math.max(0, cfg.sets - 1));
-      const exList = cfg.exercises
-        .split('\n')
-        .map(s => s.trim())
-        .filter(s => s.length > 0);
+    // 履歴の取得・保存
+    function getHistory() {
+      try { return JSON.parse(localStorage.getItem(KEY_HISTORY) || '[]'); } catch (e) { return []; }
+    }
+
+    function saveHistoryList(list) {
+      localStorage.setItem(KEY_HISTORY, JSON.stringify(list.slice(0, 100)));
+    }
+
+    function recordHistory(queue, isRunOnly = false) {
+      const now = new Date();
+      const totalSec = isRunOnly ? 0 : queue.reduce((acc, item) => acc + item.sec, 0);
+      const cfg = getCurrentConfig();
+      const distVal = parseFloat(cfg.runDist);
+      const weightVal = parseFloat(cfg.weight);
 
       const entry = {
         id: Date.now(),
-        date: new Date().toLocaleString('ja-JP', {
-          year: 'numeric', month: '2-digit', day: '2-digit',
-          hour: '2-digit', minute: '2-digit'
+        timestamp: now.getTime(),
+        yearMonth: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`,
+        date: now.toLocaleString('ja-JP', {
+          month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
         }),
+        isRunOnly,
         totalSec,
-        config: cfg,
-        exerciseSummary: exList.length > 0 ? exList.join(' / ') : '種目指定なし'
+        runDist: !isNaN(distVal) && distVal > 0 ? distVal : null,
+        weight: !isNaN(weightVal) && weightVal > 0 ? weightVal : null,
+        rounds: cfg.rounds,
+        config: cfg
       };
 
-      let history = [];
-      try {
-        history = JSON.parse(localStorage.getItem(KEY_HISTORY) || '[]');
-      } catch (e) {}
+      const history = getHistory();
       history.unshift(entry);
-      // 最新50件まで保持
-      localStorage.setItem(KEY_HISTORY, JSON.stringify(history.slice(0, 50)));
+      saveHistoryList(history);
+
+      // 記録後、次回の誤重複を防ぐためラン距離欄だけクリア（体重は前回値を残す）
+      runDistInput.value = '';
+      saveCurrentConfig();
     }
 
+    logRunOnlyBtn.addEventListener('click', () => {
+      const distVal = parseFloat(runDistInput.value);
+      const weightVal = parseFloat(weightInput.value);
+      if ((isNaN(distVal) || distVal <= 0) && (isNaN(weightVal) || weightVal <= 0)) {
+        alert('メイン画面の「ラン距離」または「体重」に数値を入力してから押してください。');
+        return;
+      }
+      recordHistory([], true);
+      renderHistoryModal();
+    });
+
     function renderHistoryModal() {
-      let history = [];
-      try {
-        history = JSON.parse(localStorage.getItem(KEY_HISTORY) || '[]');
-      } catch (e) {}
+      const history = getHistory();
+      const now = new Date();
+      const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+      // 今月の累計ラン距離計算
+      const monthlyKm = history
+        .filter(h => h.yearMonth === currentYM && h.runDist)
+        .reduce((sum, h) => sum + h.runDist, 0);
+      monthlyRunSummary.textContent = `${monthlyKm.toFixed(1)} km`;
+
+      // 体重推移計算（最新 vs 最古）
+      const weightEntries = history.filter(h => h.weight !== null);
+      if (weightEntries.length > 0) {
+        const latestW = weightEntries[0].weight;
+        const oldestW = weightEntries[weightEntries.length - 1].weight;
+        const diff = (latestW - oldestW).toFixed(1);
+        const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
+        weightSummary.textContent = weightEntries.length > 1
+          ? `${latestW.toFixed(1)}kg (${diffStr}kg)`
+          : `${latestW.toFixed(1)}kg`;
+      } else {
+        weightSummary.textContent = '-- kg';
+      }
 
       if (history.length === 0) {
-        historyList.innerHTML = '<div style="opacity:0.7; text-align:center; margin-top:40px;">まだ完了した履歴がありません。</div>';
+        historyList.innerHTML = '<div style="opacity:0.7; text-align:center; margin-top:40px;">まだ記録がありません。</div>';
         return;
       }
 
@@ -652,25 +825,42 @@
         const sec = item.totalSec % 60;
         const durationStr = min > 0 ? `${min}分${sec}秒` : `${sec}秒`;
 
+        let badgesHtml = '';
+        if (item.runDist) badgesHtml += `<span class="badge badge-run">🏃 ラン ${item.runDist} km</span>`;
+        if (item.weight) badgesHtml += `<span class="badge badge-weight">⚖️ 体重 ${item.weight} kg</span>`;
+        if (!item.isRunOnly) badgesHtml += `<span class="badge badge-tabata">🔥 タバタ ${item.rounds}周 (${durationStr})</span>`;
+
         const div = document.createElement('div');
         div.className = 'history-item';
         div.innerHTML = `
-          <div class="history-meta">${item.date} ・ 合計 ${durationStr}</div>
-          <div class="history-title">運動 ${item.config.work}秒 / 休憩 ${item.config.rest}秒 × ${item.config.sets}セット</div>
-          <div class="history-exercises">${item.exerciseSummary}</div>
+          <div class="history-meta"><span>${item.date}</span></div>
+          <div class="history-badges">${badgesHtml}</div>
+          ${!item.isRunOnly ? `<div class="history-exercises">${item.config.sequence}</div>` : ''}
           <div class="history-actions">
-            <button class="load-history-btn">この設定を読み込む</button>
+            ${!item.isRunOnly ? `<button class="load-history-btn">このメニューを読み込む</button>` : ''}
+            <button class="del-history-btn">削除</button>
           </div>
         `;
-        div.querySelector('.load-history-btn').addEventListener('click', () => {
-          if (isRunning) {
-            alert('タイマー実行中は読み込めません。一度リセットしてください。');
-            return;
-          }
-          applyConfigToForm(item.config);
-          presetSelect.value = '';
-          historyModal.classList.remove('open');
+
+        const loadBtn = div.querySelector('.load-history-btn');
+        if (loadBtn) {
+          loadBtn.addEventListener('click', () => {
+            if (isRunning) return alert('タイマー実行中は読み込めません。');
+            roundsInput.value = item.config.rounds;
+            sequenceInput.value = item.config.sequence;
+            saveCurrentConfig();
+            updateIdleDisplay();
+            presetSelect.value = '';
+            historyModal.classList.remove('open');
+          });
+        }
+
+        div.querySelector('.del-history-btn').addEventListener('click', () => {
+          if (!confirm('この履歴を削除しますか？')) return;
+          saveHistoryList(getHistory().filter(h => h.id !== item.id));
+          renderHistoryModal();
         });
+
         historyList.appendChild(div);
       });
     }
@@ -684,78 +874,17 @@
       historyModal.classList.remove('open');
     });
 
-    // フェーズ切り替え
-    function startPhase(newState) {
-      state = newState;
-      lastSpokenSecond = null;
-
-      const prepSec = parseInt(prepInput.value, 10) || 0;
-      const workSec = parseInt(workInput.value, 10) || 20;
-      const restSec = parseInt(restInput.value, 10) || 0;
-      totalSets = parseInt(setsInput.value, 10) || 8;
-
-      if (state === 'PREP') {
-        if (prepSec <= 0) {
-          startPhase('WORK');
-          return;
-        }
-        phaseDuration = prepSec;
-        body.style.backgroundColor = 'var(--bg-prep)';
-        statusLabel.textContent = 'PREPARE';
-        setLabel.textContent = `SET 1 / ${totalSets}`;
-
-        const firstEx = getExerciseForSet(1);
-        exerciseBanner.textContent = firstEx ? `次は: ${firstEx}` : '';
-        if (firstEx) {
-          speak(`準備してください。${prepSec}秒。最初は、${firstEx}`);
-        } else {
-          speak(`準備してください。${prepSec}秒`);
-        }
-
-      } else if (state === 'WORK') {
-        phaseDuration = workSec;
-        body.style.backgroundColor = 'var(--bg-work)';
-        statusLabel.textContent = 'WORK';
-        setLabel.textContent = `SET ${currentSet} / ${totalSets}`;
-
-        const currentEx = getExerciseForSet(currentSet);
-        exerciseBanner.textContent = currentEx;
-
-        const prefix = (currentSet === totalSets) ? 'ラストセット' : `${currentSet}セット目`;
-        if (currentEx) {
-          speak(`${prefix}、${currentEx}、スタート`);
-        } else {
-          speak(`${prefix}、スタート`);
-        }
-
-      } else if (state === 'REST') {
-        if (restSec <= 0) {
-          currentSet++;
-          startPhase('WORK');
-          return;
-        }
-        phaseDuration = restSec;
-        body.style.backgroundColor = 'var(--bg-rest)';
-        statusLabel.textContent = 'REST';
-        setLabel.textContent = `SET ${currentSet} / ${totalSets}`;
-
-        const nextEx = getExerciseForSet(currentSet + 1);
-        exerciseBanner.textContent = nextEx ? `次は: ${nextEx}` : '';
-        if (nextEx) {
-          speak(`休憩。次は、${nextEx}`);
-        } else {
-          speak(`休憩`);
-        }
-
-      } else if (state === 'DONE') {
+    function startStep(index) {
+      if (index >= executionQueue.length) {
         isRunning = false;
         clearInterval(timerInterval);
         releaseWakeLock();
-        recordHistory(); // ④ 完了時に履歴を保存
+        recordHistory(executionQueue, false);
 
         body.style.backgroundColor = 'var(--bg-done)';
         statusLabel.textContent = 'FINISH';
         exerciseBanner.textContent = 'COMPLETE!';
+        nextBanner.textContent = '履歴に自動記録しました';
         timeDisplay.textContent = '0';
         startPauseBtn.textContent = 'START';
         settingsPanel.classList.remove('hidden');
@@ -763,11 +892,41 @@
         return;
       }
 
-      phaseEndTime = Date.now() + phaseDuration * 1000;
-      timeDisplay.textContent = phaseDuration;
+      currentIndex = index;
+      lastSpokenSecond = null;
+      const step = executionQueue[index];
+      const nextStep = executionQueue[index + 1];
+
+      if (step.type === 'prep') {
+        body.style.backgroundColor = 'var(--bg-prep)';
+        statusLabel.textContent = 'PREPARE';
+      } else if (step.type === 'rest') {
+        body.style.backgroundColor = 'var(--bg-rest)';
+        statusLabel.textContent = 'REST';
+      } else {
+        body.style.backgroundColor = 'var(--bg-work)';
+        statusLabel.textContent = 'WORK';
+      }
+
+      setLabel.textContent = `SET ${step.round} / ${step.totalRounds}`;
+      exerciseBanner.textContent = step.name;
+      nextBanner.textContent = nextStep ? `次: ${nextStep.name} (${nextStep.sec}秒)` : 'これが最後のメニューです';
+
+      let speechText = '';
+      if (step.type === 'rest') {
+        speechText = nextStep ? `${step.name}。次は、${nextStep.name}` : step.name;
+      } else if (step.type === 'prep') {
+        speechText = nextStep ? `${step.name}、${step.sec}秒。次は、${nextStep.name}` : `${step.name}、${step.sec}秒`;
+      } else {
+        const isLastWork = !executionQueue.slice(index + 1).some(s => s.type === 'work');
+        speechText = isLastWork ? `ラスト、${step.name}、スタート` : `${step.name}、スタート`;
+      }
+      speak(speechText);
+
+      phaseEndTime = Date.now() + step.sec * 1000;
+      timeDisplay.textContent = step.sec;
     }
 
-    // メインループ
     function tick() {
       const now = Date.now();
       const diffMs = phaseEndTime - now;
@@ -775,7 +934,9 @@
 
       if (secLeft > 0) {
         timeDisplay.textContent = secLeft;
-        if (secLeft <= 3 && secLeft !== lastSpokenSecond) {
+        const currentStepSec = executionQueue[currentIndex].sec;
+        const countdownStart = Math.min(3, currentStepSec - 1);
+        if (secLeft <= countdownStart && secLeft !== lastSpokenSecond) {
           lastSpokenSecond = secLeft;
           if (secLeft === 3) {
             speak('残り3秒');
@@ -784,29 +945,22 @@
           }
         }
       } else {
-        if (state === 'PREP') {
-          startPhase('WORK');
-        } else if (state === 'WORK') {
-          if (currentSet >= totalSets) {
-            startPhase('DONE');
-          } else {
-            startPhase('REST');
-          }
-        } else if (state === 'REST') {
-          currentSet++;
-          startPhase('WORK');
-        }
+        startStep(currentIndex + 1);
       }
     }
 
-    // START / PAUSE
     startPauseBtn.addEventListener('click', () => {
       setupAudioSession();
 
       if (!isRunning) {
-        if (state === 'IDLE' || state === 'DONE') {
-          const unlockUtterance = new SpeechSynthesisUtterance('');
-          window.speechSynthesis.speak(unlockUtterance);
+        if (remainingWhenPaused === 0) {
+          executionQueue = buildFullQueue();
+          if (executionQueue.length === 0) {
+            alert('メニュー構成を1行以上入力してください。');
+            return;
+          }
+          const unlock = new SpeechSynthesisUtterance('');
+          window.speechSynthesis.speak(unlock);
         }
 
         isRunning = true;
@@ -814,12 +968,12 @@
         settingsPanel.classList.add('hidden');
         requestWakeLock();
 
-        if (state === 'IDLE' || state === 'DONE') {
-          currentSet = 1;
-          startPhase('PREP');
-        } else {
+        if (remainingWhenPaused > 0) {
           phaseEndTime = Date.now() + remainingWhenPaused;
+          remainingWhenPaused = 0;
           speak('再開');
+        } else {
+          startStep(0);
         }
 
         timerInterval = setInterval(tick, 100);
@@ -833,15 +987,14 @@
       }
     });
 
-    // RESET
     resetBtn.addEventListener('click', () => {
       isRunning = false;
       clearInterval(timerInterval);
       window.speechSynthesis.cancel();
       releaseWakeLock();
 
-      state = 'IDLE';
-      currentSet = 1;
+      currentIndex = 0;
+      remainingWhenPaused = 0;
       body.style.backgroundColor = 'var(--bg-idle)';
       statusLabel.textContent = 'READY';
       startPauseBtn.textContent = 'START';
