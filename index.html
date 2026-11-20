@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Tabata Voice Pro</title>
+  <style>
+    :root {
+      --bg-idle: #121212;
+      --bg-prep: #d97706;
+      --bg-work: #dc2626;
+      --bg-rest: #059669;
+      --bg-done: #2563eb;
+      --card-bg: rgba(255, 255, 255, 0.1);
+      --text-main: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-idle);
+      color: var(--text-main);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px 20px;
+      transition: background-color 0.3s ease;
+    }
+
+    /* ヘッダー */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: env(safe-area-inset-top);
+    }
+
+    .header-center {
+      text-align: center;
+      flex: 1;
+    }
+
+    .status-badge {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+    }
+
+    .set-indicator {
+      font-size: 1.05rem;
+      font-weight: 600;
+      opacity: 0.9;
+    }
+
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* メインタイマー */
+    .timer-display {
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    .exercise-banner {
+      font-size: 1.5rem;
+      font-weight: 800;
+      min-height: 2.2rem;
+      margin-bottom: 4px;
+      padding: 0 8px;
+      word-break: break-word;
+    }
+
+    .time-left {
+      font-size: 7rem;
+      font-weight: 900;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.03em;
+    }
+
+    /* 設定パネル */
+    .settings-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 52dvh;
+      overflow-y: auto;
+    }
+
+    .settings-container.hidden {
+      display: none;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    /* プリセットバー */
+    .preset-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .preset-row select {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .preset-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .preset-btn.danger {
+      background: rgba(239, 68, 68, 0.35);
+    }
+
+    /* 数値入力グリッド */
+    .grid-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .input-group label {
+      font-size: 0.75rem;
+      opacity: 0.85;
+      font-weight: 600;
+    }
+
+    .input-group input, .input-group textarea {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1.15rem;
+      font-weight: 700;
+      padding: 7px 10px;
+      width: 100%;
+    }
+
+    .input-group input {
+      text-align: center;
+    }
+
+    .input-group textarea {
+      font-size: 0.95rem;
+      font-weight: 500;
+      resize: none;
+      line-height: 1.4;
+    }
+
+    /* コントロールボタン */
+    .controls {
+      display: flex;
+      gap: 12px;
+      padding-bottom: env(safe-area-inset-bottom);
+      margin-top: 8px;
+    }
+
+    .main-btn {
+      flex: 1;
+      padding: 16px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .main-btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background-color: #ffffff;
+      color: #121212;
+    }
+
+    .btn-secondary {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+    }
+
+    .info-bar {
+      text-align: center;
+      font-size: 0.72rem;
+      opacity: 0.7;
+      margin-top: 6px;
+    }
+
+    /* 履歴モーダル */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      flex-direction: column;
+      padding: 20px;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-top: env(safe-area-inset-top);
+    }
+
+    .modal-header h2 {
+      font-size: 1.2rem;
+    }
+
+    .history-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .history-item {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .history-meta {
+      font-size: 0.78rem;
+      opacity: 0.75;
+    }
+
+    .history-title {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .history-exercises {
+      font-size: 0.82rem;
+      opacity: 0.85;
+    }
+
+    .history-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 4px;
+    }
+
+    .load-history-btn {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div style="width: 60px;"></div>
+    <div class="header-center">
+      <div class="status-badge" id="statusLabel">READY</div>
+      <div class="set-indicator" id="setLabel">SET 0 / 8</div>
+    </div>
+    <button class="icon-btn" id="openHistoryBtn">履歴</button>
+  </header>
+
+  <main class="timer-display">
+    <div class="exercise-banner" id="exerciseBanner"></div>
+    <div class="time-left" id="timeDisplay">20</div>
+  </main>
+
+  <section class="settings-container" id="settingsPanel">
+    <!-- ③ プリセット管理 -->
+    <div class="card">
+      <div class="preset-row">
+        <select id="presetSelect" aria-label="プリセット選択"></select>
+        <button class="preset-btn" id="savePresetBtn">保存</button>
+        <button class="preset-btn danger" id="deletePresetBtn">削除</button>
+      </div>
+    </div>
+
+    <!-- 秒数・セット数 -->
+    <div class="card grid-inputs">
+      <div class="input-group">
+        <label for="prepInput">準備時間 (秒)</label>
+        <input type="number" id="prepInput" value="10" min="0" max="300" inputmode="numeric">
+      </div>
+      <div class="input-group">
+        <label for="setsInput">セット数 (回)</label>
+        <input type="number" id="setsInput" value="8" min="1" max="99" inputmode="numeric">
+      </div>
+      <div class="input-group">
+        <label for="workInput">運動時間 (秒)</label>
+        <input type="number" id="workInput" value="20" min="1" max="600" inputmode="numeric">
+      </div>
+      <div class="input-group">
+        <label for="restInput">休憩時間 (秒)</label>
+        <input type="number" id="restInput" value="10" min="0" max="600" inputmode="numeric">
+      </div>
+    </div>
+
+    <!-- ② 種目リスト入力 -->
+    <div class="card">
+      <div class="input-group">
+        <label for="exercisesInput">種目リスト（1行に1種目・空欄可・セット数に応じて自動ループ）</label>
+        <textarea id="exercisesInput" rows="3" placeholder="例：&#10;バーピー&#10;マウンテンクライマー&#10;スクワットジャンプ"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <div>
+    <div class="controls">
+      <button class="main-btn btn-primary" id="startPauseBtn">START</button>
+      <button class="main-btn btn-secondary" id="resetBtn">RESET</button>
+    </div>
+    <div class="info-bar" id="wakeLockStatus">画面常時点灯: 待機中</div>
+  </div>
+
+  <!-- ④ 履歴モーダル -->
+  <div class="modal-overlay" id="historyModal">
+    <div class="modal-header">
+      <h2>ワークアウト履歴</h2>
+      <button class="icon-btn" id="closeHistoryBtn">閉じる</button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <script>
+    // DOM取得
+    const body = document.body;
+    const statusLabel = document.getElementById('statusLabel');
+    const setLabel = document.getElementById('setLabel');
+    const exerciseBanner = document.getElementById('exerciseBanner');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const startPauseBtn = document.getElementById('startPauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const wakeLockStatus = document.getElementById('wakeLockStatus');
+
+    const prepInput = document.getElementById('prepInput');
+    const workInput = document.getElementById('workInput');
+    const restInput = document.getElementById('restInput');
+    const setsInput = document.getElementById('setsInput');
+    const exercisesInput = document.getElementById('exercisesInput');
+
+    const presetSelect = document.getElementById('presetSelect');
+    const savePresetBtn = document.getElementById('savePresetBtn');
+    const deletePresetBtn = document.getElementById('deletePresetBtn');
+
+    const openHistoryBtn = document.getElementById('openHistoryBtn');
+    const closeHistoryBtn = document.getElementById('closeHistoryBtn');
+    const historyModal = document.getElementById('historyModal');
+    const historyList = document.getElementById('historyList');
+
+    // ストレージキー
+    const KEY_CURRENT = 'tabata_pro_current';
+    const KEY_PRESETS = 'tabata_pro_presets';
+    const KEY_HISTORY = 'tabata_pro_history';
+
+    // タイマー状態
+    let state = 'IDLE'; // IDLE, PREP, WORK, REST, DONE
+    let isRunning = false;
+    let currentSet = 1;
+    let totalSets = 8;
+    let phaseDuration = 0;
+    let phaseEndTime = 0;
+    let remainingWhenPaused = 0;
+    let lastSpokenSecond = null;
+    let timerInterval = null;
+    let wakeLock = null;
+
+    // 1. iOS Safari オーディオセッション（マナーモード貫通）
+    function setupAudioSession() {
+      if ('audioSession' in navigator) {
+        try {
+          navigator.audioSession.type = 'playback';
+        } catch (e) {}
+      }
+    }
+
+    // 2. 音声読み上げ
+    function speak(text) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ja-JP';
+      utterance.rate = 1.2;
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // 3. 画面常時点灯
+    async function requestWakeLock() {
+      if ('wakeLock' in navigator) {
+        try {
+          wakeLock = await navigator.wakeLock.request('screen');
+          wakeLockStatus.textContent = '画面常時点灯: ON';
+          wakeLock.addEventListener('release', () => {
+            wakeLockStatus.textContent = '画面常時点灯: OFF';
+          });
+        } catch (err) {
+          wakeLockStatus.textContent = '画面常時点灯: 制限中';
+        }
+      }
+    }
+
+    function releaseWakeLock() {
+      if (wakeLock !== null) {
+        wakeLock.release().then(() => { wakeLock = null; });
+      }
+    }
+
+    document.addEventListener('visibilitychange', async () => {
+      if (wakeLock !== null && document.visibilityState === 'visible' && isRunning) {
+        await requestWakeLock();
+      }
+    });
+
+    // 種目リスト取得ヘルパー（セット番号 1-indexed に対応する種目を返す）
+    function getExerciseForSet(setNum) {
+      const lines = exercisesInput.value
+        .split('\n')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+      if (lines.length === 0) return '';
+      return lines[(setNum - 1) % lines.length];
+    }
+
+    // 現在のフォーム設定を取得
+    function getCurrentFormConfig() {
+      return {
+        prep: parseInt(prepInput.value, 10) || 0,
+        work: parseInt(workInput.value, 10) || 20,
+        rest: parseInt(restInput.value, 10) || 0,
+        sets: parseInt(setsInput.value, 10) || 8,
+        exercises: exercisesInput.value
+      };
+    }
+
+    // フォームに設定を反映
+    function applyConfigToForm(cfg) {
+      prepInput.value = cfg.prep ?? 10;
+      workInput.value = cfg.work ?? 20;
+      restInput.value = cfg.rest ?? 10;
+      setsInput.value = cfg.sets ?? 8;
+      exercisesInput.value = cfg.exercises ?? '';
+      saveCurrentConfig();
+      updateIdleDisplay();
+    }
+
+    function saveCurrentConfig() {
+      localStorage.setItem(KEY_CURRENT, JSON.stringify(getCurrentFormConfig()));
+    }
+
+    function loadCurrentConfig() {
+      const saved = localStorage.getItem(KEY_CURRENT);
+      if (saved) {
+        try {
+          applyConfigToForm(JSON.parse(saved));
+          return;
+        } catch (e) {}
+      }
+      updateIdleDisplay();
+    }
+
+    function updateIdleDisplay() {
+      if (state === 'IDLE') {
+        totalSets = parseInt(setsInput.value, 10) || 8;
+        const workSec = parseInt(workInput.value, 10) || 20;
+        setLabel.textContent = `SET 0 / ${totalSets}`;
+        timeDisplay.textContent = workSec;
+        const firstEx = getExerciseForSet(1);
+        exerciseBanner.textContent = firstEx ? `1種目目: ${firstEx}` : '';
+      }
+    }
+
+    [prepInput, workInput, restInput, setsInput, exercisesInput].forEach(el => {
+      el.addEventListener('input', () => {
+        saveCurrentConfig();
+        updateIdleDisplay();
+      });
+    });
+
+    // ③ プリセット機能
+    function getPresets() {
+      const raw = localStorage.getItem(KEY_PRESETS);
+      if (raw) {
+        try { return JSON.parse(raw); } catch (e) {}
+      }
+      // デフォルトプリセット
+      return [
+        {
+          id: 'default_tabata',
+          name: '標準タバタ (20s/10s×8)',
+          prep: 10, work: 20, rest: 10, sets: 8,
+          exercises: ''
+        },
+        {
+          id: 'default_4ex',
+          name: '全身自重4種目×2周',
+          prep: 10, work: 20, rest: 10, sets: 8,
+          exercises: 'スクワットジャンプ\nマウンテンクライマー\nジャンピングジャック\nバーピー'
+        }
+      ];
+    }
+
+    function savePresets(list) {
+      localStorage.setItem(KEY_PRESETS, JSON.stringify(list));
+    }
+
+    function renderPresetSelect(selectedId = null) {
+      const presets = getPresets();
+      presetSelect.innerHTML = '<option value="">-- プリセットから選択 --</option>';
+      presets.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.name;
+        if (p.id === selectedId) opt.selected = true;
+        presetSelect.appendChild(opt);
+      });
+    }
+
+    presetSelect.addEventListener('change', () => {
+      const id = presetSelect.value;
+      if (!id) return;
+      const found = getPresets().find(p => p.id === id);
+      if (found) applyConfigToForm(found);
+    });
+
+    savePresetBtn.addEventListener('click', () => {
+      const name = prompt('プリセット名を入力してください（例：スプリント30-30）');
+      if (!name || !name.trim()) return;
+      const presets = getPresets();
+      const newPreset = {
+        id: 'preset_' + Date.now(),
+        name: name.trim(),
+        ...getCurrentFormConfig()
+      };
+      presets.push(newPreset);
+      savePresets(presets);
+      renderPresetSelect(newPreset.id);
+    });
+
+    deletePresetBtn.addEventListener('click', () => {
+      const id = presetSelect.value;
+      if (!id) {
+        alert('削除するプリセットを選択してください。');
+        return;
+      }
+      if (!confirm('選択中のプリセットを削除しますか？')) return;
+      const filtered = getPresets().filter(p => p.id !== id);
+      savePresets(filtered);
+      renderPresetSelect();
+    });
+
+    // ④ 履歴保存・表示機能
+    function recordHistory() {
+      const cfg = getCurrentFormConfig();
+      const totalSec = cfg.prep + (cfg.work * cfg.sets) + (cfg.rest * Math.max(0, cfg.sets - 1));
+      const exList = cfg.exercises
+        .split('\n')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
+      const entry = {
+        id: Date.now(),
+        date: new Date().toLocaleString('ja-JP', {
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit'
+        }),
+        totalSec,
+        config: cfg,
+        exerciseSummary: exList.length > 0 ? exList.join(' / ') : '種目指定なし'
+      };
+
+      let history = [];
+      try {
+        history = JSON.parse(localStorage.getItem(KEY_HISTORY) || '[]');
+      } catch (e) {}
+      history.unshift(entry);
+      // 最新50件まで保持
+      localStorage.setItem(KEY_HISTORY, JSON.stringify(history.slice(0, 50)));
+    }
+
+    function renderHistoryModal() {
+      let history = [];
+      try {
+        history = JSON.parse(localStorage.getItem(KEY_HISTORY) || '[]');
+      } catch (e) {}
+
+      if (history.length === 0) {
+        historyList.innerHTML = '<div style="opacity:0.7; text-align:center; margin-top:40px;">まだ完了した履歴がありません。</div>';
+        return;
+      }
+
+      historyList.innerHTML = '';
+      history.forEach(item => {
+        const min = Math.floor(item.totalSec / 60);
+        const sec = item.totalSec % 60;
+        const durationStr = min > 0 ? `${min}分${sec}秒` : `${sec}秒`;
+
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `
+          <div class="history-meta">${item.date} ・ 合計 ${durationStr}</div>
+          <div class="history-title">運動 ${item.config.work}秒 / 休憩 ${item.config.rest}秒 × ${item.config.sets}セット</div>
+          <div class="history-exercises">${item.exerciseSummary}</div>
+          <div class="history-actions">
+            <button class="load-history-btn">この設定を読み込む</button>
+          </div>
+        `;
+        div.querySelector('.load-history-btn').addEventListener('click', () => {
+          if (isRunning) {
+            alert('タイマー実行中は読み込めません。一度リセットしてください。');
+            return;
+          }
+          applyConfigToForm(item.config);
+          presetSelect.value = '';
+          historyModal.classList.remove('open');
+        });
+        historyList.appendChild(div);
+      });
+    }
+
+    openHistoryBtn.addEventListener('click', () => {
+      renderHistoryModal();
+      historyModal.classList.add('open');
+    });
+
+    closeHistoryBtn.addEventListener('click', () => {
+      historyModal.classList.remove('open');
+    });
+
+    // フェーズ切り替え
+    function startPhase(newState) {
+      state = newState;
+      lastSpokenSecond = null;
+
+      const prepSec = parseInt(prepInput.value, 10) || 0;
+      const workSec = parseInt(workInput.value, 10) || 20;
+      const restSec = parseInt(restInput.value, 10) || 0;
+      totalSets = parseInt(setsInput.value, 10) || 8;
+
+      if (state === 'PREP') {
+        if (prepSec <= 0) {
+          startPhase('WORK');
+          return;
+        }
+        phaseDuration = prepSec;
+        body.style.backgroundColor = 'var(--bg-prep)';
+        statusLabel.textContent = 'PREPARE';
+        setLabel.textContent = `SET 1 / ${totalSets}`;
+
+        const firstEx = getExerciseForSet(1);
+        exerciseBanner.textContent = firstEx ? `次は: ${firstEx}` : '';
+        if (firstEx) {
+          speak(`準備してください。${prepSec}秒。最初は、${firstEx}`);
+        } else {
+          speak(`準備してください。${prepSec}秒`);
+        }
+
+      } else if (state === 'WORK') {
+        phaseDuration = workSec;
+        body.style.backgroundColor = 'var(--bg-work)';
+        statusLabel.textContent = 'WORK';
+        setLabel.textContent = `SET ${currentSet} / ${totalSets}`;
+
+        const currentEx = getExerciseForSet(currentSet);
+        exerciseBanner.textContent = currentEx;
+
+        const prefix = (currentSet === totalSets) ? 'ラストセット' : `${currentSet}セット目`;
+        if (currentEx) {
+          speak(`${prefix}、${currentEx}、スタート`);
+        } else {
+          speak(`${prefix}、スタート`);
+        }
+
+      } else if (state === 'REST') {
+        if (restSec <= 0) {
+          currentSet++;
+          startPhase('WORK');
+          return;
+        }
+        phaseDuration = restSec;
+        body.style.backgroundColor = 'var(--bg-rest)';
+        statusLabel.textContent = 'REST';
+        setLabel.textContent = `SET ${currentSet} / ${totalSets}`;
+
+        const nextEx = getExerciseForSet(currentSet + 1);
+        exerciseBanner.textContent = nextEx ? `次は: ${nextEx}` : '';
+        if (nextEx) {
+          speak(`休憩。次は、${nextEx}`);
+        } else {
+          speak(`休憩`);
+        }
+
+      } else if (state === 'DONE') {
+        isRunning = false;
+        clearInterval(timerInterval);
+        releaseWakeLock();
+        recordHistory(); // ④ 完了時に履歴を保存
+
+        body.style.backgroundColor = 'var(--bg-done)';
+        statusLabel.textContent = 'FINISH';
+        exerciseBanner.textContent = 'COMPLETE!';
+        timeDisplay.textContent = '0';
+        startPauseBtn.textContent = 'START';
+        settingsPanel.classList.remove('hidden');
+        speak('お疲れ様でした。トレーニング終了です');
+        return;
+      }
+
+      phaseEndTime = Date.now() + phaseDuration * 1000;
+      timeDisplay.textContent = phaseDuration;
+    }
+
+    // メインループ
+    function tick() {
+      const now = Date.now();
+      const diffMs = phaseEndTime - now;
+      const secLeft = Math.ceil(diffMs / 1000);
+
+      if (secLeft > 0) {
+        timeDisplay.textContent = secLeft;
+        if (secLeft <= 3 && secLeft !== lastSpokenSecond) {
+          lastSpokenSecond = secLeft;
+          if (secLeft === 3) {
+            speak('残り3秒');
+          } else {
+            speak(String(secLeft));
+          }
+        }
+      } else {
+        if (state === 'PREP') {
+          startPhase('WORK');
+        } else if (state === 'WORK') {
+          if (currentSet >= totalSets) {
+            startPhase('DONE');
+          } else {
+            startPhase('REST');
+          }
+        } else if (state === 'REST') {
+          currentSet++;
+          startPhase('WORK');
+        }
+      }
+    }
+
+    // START / PAUSE
+    startPauseBtn.addEventListener('click', () => {
+      setupAudioSession();
+
+      if (!isRunning) {
+        if (state === 'IDLE' || state === 'DONE') {
+          const unlockUtterance = new SpeechSynthesisUtterance('');
+          window.speechSynthesis.speak(unlockUtterance);
+        }
+
+        isRunning = true;
+        startPauseBtn.textContent = 'PAUSE';
+        settingsPanel.classList.add('hidden');
+        requestWakeLock();
+
+        if (state === 'IDLE' || state === 'DONE') {
+          currentSet = 1;
+          startPhase('PREP');
+        } else {
+          phaseEndTime = Date.now() + remainingWhenPaused;
+          speak('再開');
+        }
+
+        timerInterval = setInterval(tick, 100);
+      } else {
+        isRunning = false;
+        clearInterval(timerInterval);
+        remainingWhenPaused = phaseEndTime - Date.now();
+        startPauseBtn.textContent = 'RESUME';
+        releaseWakeLock();
+        window.speechSynthesis.cancel();
+      }
+    });
+
+    // RESET
+    resetBtn.addEventListener('click', () => {
+      isRunning = false;
+      clearInterval(timerInterval);
+      window.speechSynthesis.cancel();
+      releaseWakeLock();
+
+      state = 'IDLE';
+      currentSet = 1;
+      body.style.backgroundColor = 'var(--bg-idle)';
+      statusLabel.textContent = 'READY';
+      startPauseBtn.textContent = 'START';
+      settingsPanel.classList.remove('hidden');
+      updateIdleDisplay();
+    });
+
+    // 初期化
+    renderPresetSelect();
+    loadCurrentConfig();
+  </script>
+</body>
+</html>
