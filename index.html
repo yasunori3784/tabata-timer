@@ -94,7 +94,7 @@
     }
 
     .time-left {
-      font-size: 6rem;
+      font-size: 5.8rem;
       font-weight: 900;
       line-height: 1;
       font-variant-numeric: tabular-nums;
@@ -105,7 +105,7 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      max-height: 58dvh;
+      max-height: 60dvh;
       overflow-y: auto;
     }
 
@@ -163,10 +163,10 @@
     }
 
     /* 数値入力グリッド */
-    .grid-3 {
+    .grid-4 {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 6px;
     }
 
     .grid-2 {
@@ -182,7 +182,7 @@
     }
 
     .metric-box label {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       opacity: 0.85;
       font-weight: 700;
       text-align: center;
@@ -193,14 +193,47 @@
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 8px;
       color: #fff;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 700;
-      padding: 6px 4px;
+      padding: 6px 2px;
       width: 100%;
       text-align: center;
     }
 
-    /* 種目選択チップ */
+    /* 選択済みキュー（1セットの順番リスト） */
+    .queue-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px dashed rgba(255, 255, 255, 0.25);
+      border-radius: 10px;
+      padding: 8px;
+      min-height: 42px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .queue-tag {
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .queue-tag span {
+      opacity: 0.75;
+      font-size: 0.75rem;
+    }
+
+    /* 種目追加パレット */
     .chip-container {
       display: flex;
       flex-wrap: wrap;
@@ -208,41 +241,30 @@
     }
 
     .ex-chip {
-      background: rgba(255, 255, 255, 0.12);
-      color: rgba(255, 255, 255, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 20px;
-      padding: 6px 12px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    .ex-chip.selected {
-      background: #dc2626;
+      background: rgba(255, 255, 255, 0.14);
       color: #ffffff;
-      border-color: #f87171;
-      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
-    }
-
-    .add-ex-btn {
-      background: rgba(255, 255, 255, 0.22);
-      color: #fff;
-      border: none;
+      border: 1px solid rgba(255, 255, 255, 0.22);
       border-radius: 20px;
-      padding: 6px 11px;
+      padding: 5px 11px;
       font-size: 0.8rem;
       font-weight: 700;
       cursor: pointer;
     }
 
-    .selected-order-preview {
+    .ex-chip:active {
+      background: #dc2626;
+      transform: scale(0.95);
+    }
+
+    .small-action-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 4px 9px;
       font-size: 0.74rem;
-      opacity: 0.85;
-      margin-top: 6px;
-      color: #fca5a5;
-      font-weight: 600;
+      font-weight: 700;
+      cursor: pointer;
     }
 
     /* コントロールボタン */
@@ -417,13 +439,13 @@
     <div style="width: 60px;"></div>
     <div class="header-center">
       <div class="status-badge" id="statusLabel">READY</div>
-      <div class="set-indicator" id="setLabel">SET 0 / 3 ・ 0 / 2回</div>
+      <div class="set-indicator" id="setLabel">SET 0 / 3 ・ 0 / 3回</div>
     </div>
     <button class="icon-btn" id="openHistoryBtn">履歴</button>
   </header>
 
   <main class="timer-display">
-    <div class="exercise-banner" id="exerciseBanner">アップ（準備）</div>
+    <div class="exercise-banner" id="exerciseBanner">準備（アップ）</div>
     <div class="next-banner" id="nextBanner"></div>
     <div class="time-left" id="timeDisplay">5</div>
   </main>
@@ -438,46 +460,41 @@
       </div>
     </div>
 
-    <!-- 秒数設定（PREP / WORK / REST） -->
+    <!-- 秒数＆セット数（4列） -->
     <div class="card">
-      <div class="grid-3">
+      <div class="grid-4">
         <div class="metric-box">
-          <label for="prepSecInput">PREP 準備 (秒)</label>
+          <label for="prepSecInput">PREP (秒)</label>
           <input type="number" id="prepSecInput" value="5" min="0" max="300" inputmode="numeric">
         </div>
         <div class="metric-box">
-          <label for="workSecInput">WORK 運動 (秒)</label>
+          <label for="workSecInput">WORK (秒)</label>
           <input type="number" id="workSecInput" value="10" min="1" max="600" inputmode="numeric">
         </div>
         <div class="metric-box">
-          <label for="restSecInput">REST 休憩 (秒)</label>
+          <label for="restSecInput">REST (秒)</label>
           <input type="number" id="restSecInput" value="5" min="0" max="600" inputmode="numeric">
         </div>
-      </div>
-    </div>
-
-    <!-- 回数・セット数 -->
-    <div class="card">
-      <div class="grid-2">
         <div class="metric-box">
-          <label for="repsInput">1セット内の回数 (回)</label>
-          <input type="number" id="repsInput" value="2" min="1" max="99" inputmode="numeric">
-        </div>
-        <div class="metric-box">
-          <label for="setsInput">セット数 (セット)</label>
+          <label for="setsInput">セット数</label>
           <input type="number" id="setsInput" value="3" min="1" max="99" inputmode="numeric">
         </div>
       </div>
     </div>
 
-    <!-- WORK 種目選択（タップで複数選択） -->
+    <!-- 1セットの種目順番（重複OK・タップ追加） -->
     <div class="card">
       <div class="card-title">
-        <span>WORK 種目（タップで選択・順番にループ）</span>
-        <button class="add-ex-btn" id="addCustomExBtn">+ 種目追加</button>
+        <span id="sequenceCountLabel">1セットの構成（3種目・タップで削除）</span>
+        <button class="small-action-btn" id="clearSeqBtn">クリア</button>
       </div>
-      <div class="chip-container" id="exerciseChips"></div>
-      <div class="selected-order-preview" id="selectedOrderPreview">選択順: ダッシュ → バーピー</div>
+      <div class="queue-box" id="selectedQueueBox"></div>
+
+      <div class="card-title" style="margin-top:4px;">
+        <span>種目をタップして追加（何回でも重複可）</span>
+        <button class="small-action-btn" id="addCustomExBtn">+ 新規種目</button>
+      </div>
+      <div class="chip-container" id="exercisePalette"></div>
     </div>
 
     <!-- ラン距離・体重（記録用） -->
@@ -542,14 +559,15 @@
     const prepSecInput = document.getElementById('prepSecInput');
     const workSecInput = document.getElementById('workSecInput');
     const restSecInput = document.getElementById('restSecInput');
-    const repsInput = document.getElementById('repsInput');
     const setsInput = document.getElementById('setsInput');
     const runDistInput = document.getElementById('runDistInput');
     const weightInput = document.getElementById('weightInput');
 
-    const exerciseChips = document.getElementById('exerciseChips');
+    const sequenceCountLabel = document.getElementById('sequenceCountLabel');
+    const selectedQueueBox = document.getElementById('selectedQueueBox');
+    const clearSeqBtn = document.getElementById('clearSeqBtn');
+    const exercisePalette = document.getElementById('exercisePalette');
     const addCustomExBtn = document.getElementById('addCustomExBtn');
-    const selectedOrderPreview = document.getElementById('selectedOrderPreview');
 
     const presetSelect = document.getElementById('presetSelect');
     const savePresetBtn = document.getElementById('savePresetBtn');
@@ -563,12 +581,11 @@
     const monthlyRunSummary = document.getElementById('monthlyRunSummary');
     const weightSummary = document.getElementById('weightSummary');
 
-    const KEY_CURRENT = 'tabata_select_current_v4';
-    const KEY_EX_LIST = 'tabata_select_exlist_v4';
-    const KEY_PRESETS = 'tabata_select_presets_v4';
-    const KEY_HISTORY = 'tabata_select_history_v4';
+    const KEY_CURRENT = 'tabata_seq_current_v5';
+    const KEY_EX_LIST = 'tabata_seq_exlist_v5';
+    const KEY_PRESETS = 'tabata_seq_presets_v5';
+    const KEY_HISTORY = 'tabata_seq_history_v5';
 
-    // 種目マスタと選択中リスト（選択順を保持）
     let availableExercises = [
       'ダッシュ',
       'バーピー',
@@ -579,7 +596,8 @@
       'プランクジャック',
       'スクワットジャンプ'
     ];
-    let selectedExercises = ['ダッシュ', 'バーピー'];
+    // 重複可能な1セット分の種目配列
+    let selectedSequence = ['ダッシュ', 'バーピー', 'ダッシュ'];
 
     let executionQueue = [];
     let currentIndex = 0;
@@ -632,7 +650,6 @@
       }
     });
 
-    // 種目チップの描画と選択制御
     function loadExerciseList() {
       const saved = localStorage.getItem(KEY_EX_LIST);
       if (saved) {
@@ -644,36 +661,51 @@
       localStorage.setItem(KEY_EX_LIST, JSON.stringify(availableExercises));
     }
 
-    function renderExerciseChips() {
-      exerciseChips.innerHTML = '';
+    // 選択済み順番キューとパレットの描画
+    function renderSequenceUI() {
+      sequenceCountLabel.textContent = `1セットの構成（${selectedSequence.length}回・タップで削除）`;
+      selectedQueueBox.innerHTML = '';
+
+      if (selectedSequence.length === 0) {
+        selectedQueueBox.innerHTML = '<span style="font-size:0.76rem; opacity:0.6;">下の種目をタップして追加してください</span>';
+      } else {
+        selectedSequence.forEach((ex, index) => {
+          const tag = document.createElement('button');
+          tag.type = 'button';
+          tag.className = 'queue-tag';
+          tag.innerHTML = `${index + 1}. ${ex} <span>×</span>`;
+          tag.addEventListener('click', () => {
+            selectedSequence.splice(index, 1);
+            renderSequenceUI();
+            saveCurrentConfig();
+            updateIdleDisplay();
+          });
+          selectedQueueBox.appendChild(tag);
+        });
+      }
+
+      exercisePalette.innerHTML = '';
       availableExercises.forEach(ex => {
-        const idx = selectedExercises.indexOf(ex);
-        const isSelected = idx !== -1;
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'ex-chip' + (isSelected ? ' selected' : '');
-        btn.textContent = isSelected ? `${idx + 1}. ${ex}` : ex;
-
+        btn.className = 'ex-chip';
+        btn.textContent = `+ ${ex}`;
         btn.addEventListener('click', () => {
-          const curIdx = selectedExercises.indexOf(ex);
-          if (curIdx !== -1) {
-            selectedExercises.splice(curIdx, 1);
-          } else {
-            selectedExercises.push(ex);
-          }
-          renderExerciseChips();
+          selectedSequence.push(ex);
+          renderSequenceUI();
           saveCurrentConfig();
           updateIdleDisplay();
         });
-        exerciseChips.appendChild(btn);
+        exercisePalette.appendChild(btn);
       });
-
-      if (selectedExercises.length > 0) {
-        selectedOrderPreview.textContent = `選択順: ${selectedExercises.join(' → ')}`;
-      } else {
-        selectedOrderPreview.textContent = '※ 種目未選択（一般的な運動としてカウントします）';
-      }
     }
+
+    clearSeqBtn.addEventListener('click', () => {
+      selectedSequence = [];
+      renderSequenceUI();
+      saveCurrentConfig();
+      updateIdleDisplay();
+    });
 
     addCustomExBtn.addEventListener('click', () => {
       const name = prompt('追加する種目名を入力してください（例：シャトルラン）');
@@ -683,26 +715,24 @@
         availableExercises.push(trimmed);
         saveExerciseList();
       }
-      if (!selectedExercises.includes(trimmed)) {
-        selectedExercises.push(trimmed);
-      }
-      renderExerciseChips();
+      selectedSequence.push(trimmed);
+      renderSequenceUI();
       saveCurrentConfig();
       updateIdleDisplay();
     });
 
-    // キュー構築（Prep → [Work + Rest] × 回数 を セット数分繰り返す）
+    // キュー構築（Prep → [Work + Rest] × selectedSequence.length を セット数分繰り返す）
     function buildFullQueue() {
       const prepSec = parseInt(prepSecInput.value, 10) || 0;
-      const workSec = Math.max(1, parseInt(workSecInput.value, 10) || 20);
+      const workSec = Math.max(1, parseInt(workSecInput.value, 10) || 10);
       const restSec = parseInt(restSecInput.value, 10) || 0;
-      const reps = Math.max(1, parseInt(repsInput.value, 10) || 1);
       const sets = Math.max(1, parseInt(setsInput.value, 10) || 1);
 
+      const seq = selectedSequence.length > 0 ? selectedSequence : ['全力運動'];
+      const reps = seq.length;
       const queue = [];
 
       for (let s = 1; s <= sets; s++) {
-        // セットごとのPREP（準備）
         if (prepSec > 0) {
           queue.push({
             type: 'prep',
@@ -715,12 +745,8 @@
           });
         }
 
-        // 1セット内の回数ループ
         for (let r = 1; r <= reps; r++) {
-          const exName = selectedExercises.length > 0
-            ? selectedExercises[(r - 1) % selectedExercises.length]
-            : '全力運動';
-
+          const exName = seq[r - 1];
           queue.push({
             type: 'work',
             name: exName,
@@ -731,7 +757,6 @@
             totalReps: reps
           });
 
-          // 最終セットの最終回の後以外はRESTを入れる
           const isVeryLast = (s === sets && r === reps);
           if (restSec > 0 && !isVeryLast) {
             queue.push({
@@ -754,9 +779,8 @@
         prepSec: parseInt(prepSecInput.value, 10) || 0,
         workSec: parseInt(workSecInput.value, 10) || 10,
         restSec: parseInt(restSecInput.value, 10) || 5,
-        reps: parseInt(repsInput.value, 10) || 2,
         sets: parseInt(setsInput.value, 10) || 3,
-        exercises: [...selectedExercises],
+        sequence: [...selectedSequence],
         runDist: runDistInput.value,
         weight: weightInput.value
       };
@@ -766,21 +790,19 @@
       prepSecInput.value = cfg.prepSec ?? 5;
       workSecInput.value = cfg.workSec ?? 10;
       restSecInput.value = cfg.restSec ?? 5;
-      repsInput.value = cfg.reps ?? 2;
       setsInput.value = cfg.sets ?? 3;
-      if (Array.isArray(cfg.exercises)) {
-        // マスタにない種目があれば追加
-        cfg.exercises.forEach(ex => {
+      if (Array.isArray(cfg.sequence)) {
+        cfg.sequence.forEach(ex => {
           if (!availableExercises.includes(ex)) availableExercises.push(ex);
         });
         saveExerciseList();
-        selectedExercises = [...cfg.exercises];
+        selectedSequence = [...cfg.sequence];
       }
       if (includeMetrics) {
         if (cfg.runDist !== undefined) runDistInput.value = cfg.runDist;
         if (cfg.weight !== undefined) weightInput.value = cfg.weight;
       }
-      renderExerciseChips();
+      renderSequenceUI();
       saveCurrentConfig();
       updateIdleDisplay();
     }
@@ -797,7 +819,7 @@
           return;
         } catch (e) {}
       }
-      renderExerciseChips();
+      renderSequenceUI();
       updateIdleDisplay();
     }
 
@@ -805,7 +827,7 @@
       if (isRunning) return;
       const queue = buildFullQueue();
       const sets = Math.max(1, parseInt(setsInput.value, 10) || 1);
-      const reps = Math.max(1, parseInt(repsInput.value, 10) || 1);
+      const reps = Math.max(1, selectedSequence.length);
       setLabel.textContent = `SET 0 / ${sets} ・ 0 / ${reps}回`;
 
       if (queue.length > 0) {
@@ -815,7 +837,7 @@
       }
     }
 
-    [prepSecInput, workSecInput, restSecInput, repsInput, setsInput, runDistInput, weightInput].forEach(el => {
+    [prepSecInput, workSecInput, restSecInput, setsInput, runDistInput, weightInput].forEach(el => {
       el.addEventListener('input', () => {
         saveCurrentConfig();
         updateIdleDisplay();
@@ -830,28 +852,28 @@
       }
       return [
         {
-          id: 'sprint_burpee_3',
-          name: 'アップ5s→ダッシュ・バーピー10s×2回 (3セット)',
-          prepSec: 5, workSec: 10, restSec: 5, reps: 2, sets: 3,
-          exercises: ['ダッシュ', 'バーピー']
+          id: 'dash_burpee_dash',
+          name: 'ダッシュ→バーピー→ダッシュ (10s/5s ×3セット)',
+          prepSec: 5, workSec: 10, restSec: 5, sets: 3,
+          sequence: ['ダッシュ', 'バーピー', 'ダッシュ']
         },
         {
           id: 'day_a',
-          name: 'Day A: HYROX＆ホッケー全身パワー (8回×1セット)',
-          prepSec: 10, workSec: 20, restSec: 10, reps: 8, sets: 1,
-          exercises: ['バーピーブロードジャンプ', 'スケータージャンプ']
+          name: 'Day A: HYROX＆ホッケー全身パワー (4周)',
+          prepSec: 10, workSec: 20, restSec: 10, sets: 4,
+          sequence: ['バーピーブロードジャンプ', 'スケータージャンプ']
         },
         {
           id: 'day_b',
-          name: 'Day B: スプリント＆脚筋持久力 (15s/15s×8回)',
-          prepSec: 10, workSec: 15, restSec: 15, reps: 8, sets: 1,
-          exercises: ['ダッシュ', 'ジャンピングランジ']
+          name: 'Day B: スプリント＆脚筋持久力 (15s/15s ×4周)',
+          prepSec: 10, workSec: 15, restSec: 15, sets: 4,
+          sequence: ['ダッシュ', 'ジャンピングランジ']
         },
         {
           id: 'day_c',
-          name: 'Day C: 低衝撃・体幹＆脂肪燃焼 (8回×1セット)',
-          prepSec: 10, workSec: 20, restSec: 10, reps: 8, sets: 1,
-          exercises: ['マウンテンクライマー', 'プランクジャック']
+          name: 'Day C: 低衝撃・体幹＆脂肪燃焼 (4周)',
+          prepSec: 10, workSec: 20, restSec: 10, sets: 4,
+          sequence: ['マウンテンクライマー', 'プランクジャック']
         }
       ];
     }
@@ -888,9 +910,8 @@
         prepSec: cfg.prepSec,
         workSec: cfg.workSec,
         restSec: cfg.restSec,
-        reps: cfg.reps,
         sets: cfg.sets,
-        exercises: cfg.exercises
+        sequence: cfg.sequence
       };
       presets.push(newPreset);
       savePresets(presets);
@@ -992,11 +1013,12 @@
         if (item.runDist) badgesHtml += `<span class="badge badge-run">🏃 ラン ${item.runDist} km</span>`;
         if (item.weight) badgesHtml += `<span class="badge badge-weight">⚖️ 体重 ${item.weight} kg</span>`;
         if (!item.isRunOnly) {
-          badgesHtml += `<span class="badge badge-tabata">🔥 ${item.config.reps}回×${item.config.sets}セット (${durationStr})</span>`;
+          const repCount = item.config.sequence ? item.config.sequence.length : 1;
+          badgesHtml += `<span class="badge badge-tabata">🔥 ${repCount}回×${item.config.sets}セット (${durationStr})</span>`;
         }
 
-        const exText = item.config.exercises && item.config.exercises.length > 0
-          ? item.config.exercises.join(' → ')
+        const exText = item.config.sequence && item.config.sequence.length > 0
+          ? item.config.sequence.join(' → ')
           : '種目指定なし';
 
         const div = document.createElement('div');
@@ -1124,7 +1146,7 @@
         if (remainingWhenPaused === 0) {
           executionQueue = buildFullQueue();
           if (executionQueue.length === 0) {
-            alert('秒数や回数を正しく設定してください。');
+            alert('種目や秒数を設定してください。');
             return;
           }
           const unlock = new SpeechSynthesisUtterance('');
