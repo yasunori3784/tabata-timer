@@ -130,21 +130,22 @@
       align-items: center;
     }
 
-    /* プリセット行 */
+    /* プリセット & AI行 */
     .preset-row {
       display: flex;
       gap: 6px;
     }
 
-    .preset-row select {
+    .preset-row select, .preset-row input {
       flex: 1;
       background: rgba(0, 0, 0, 0.5);
       color: #fff;
       border: 1px solid rgba(255, 255, 255, 0.25);
       border-radius: 8px;
       padding: 7px 8px;
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       font-weight: 600;
+      min-width: 0;
     }
 
     .preset-btn {
@@ -156,10 +157,44 @@
       font-size: 0.8rem;
       font-weight: 700;
       cursor: pointer;
+      white-space: nowrap;
     }
 
     .preset-btn.danger {
       background: rgba(239, 68, 68, 0.35);
+    }
+
+    .preset-btn.ai-btn {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+    }
+
+    .preset-btn.ai-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .ai-reason-box {
+      margin-top: 6px;
+      font-size: 0.76rem;
+      line-height: 1.4;
+      color: #c7d2fe;
+      background: rgba(99, 102, 241, 0.18);
+      border: 1px solid rgba(129, 140, 248, 0.3);
+      border-radius: 8px;
+      padding: 6px 8px;
+      display: none;
+    }
+
+    .api-key-panel {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      display: none;
+    }
+
+    .api-key-panel.open {
+      display: block;
     }
 
     /* 数値入力グリッド */
@@ -451,6 +486,36 @@
   </main>
 
   <section class="settings-container" id="settingsPanel">
+    <!-- AIメニュー自動提案 -->
+    <div class="card">
+      <div class="card-title">
+        <span>✨ AIトレーナーメニュー提案</span>
+        <button class="small-action-btn" id="toggleApiKeyBtn">🔑 API設定</button>
+      </div>
+      <div class="preset-row">
+        <select id="aiFocusSelect" aria-label="今日のテーマ">
+          <option value="全身の脂肪燃焼と心肺強化（王道タバタ・20秒/10秒×4種目×2セット）">🔥 王道脂肪燃焼（20s/10s×2周）</option>
+          <option value="膝や足首への着地衝撃を抑えた低衝撃メニュー（ジャンプなし・プランクやスクワット系中心）">🦵 膝・関節に優しく（低衝撃）</option>
+          <option value="体幹・腹筋・インナーマッスルを徹底的に追い込むメニュー">💪 体幹・腹筋メイン</option>
+          <option value="ランニング前の神経系刺激とスプリント持久力を高める高強度メニュー">⚡ スプリント・心肺追い込み</option>
+        </select>
+        <button class="preset-btn ai-btn" id="generateAiMenuBtn">AI生成</button>
+      </div>
+      <div class="ai-reason-box" id="aiReasonBox"></div>
+
+      <!-- APIキー入力パネル（初期は非表示、未設定時のみ展開） -->
+      <div class="api-key-panel" id="apiKeyPanel">
+        <div class="card-title" style="margin-bottom:4px;">
+          <span>Gemini API Key（ブラウザ内にのみ保存）</span>
+          <span id="apiKeyStatusBadge" style="color:#6ee7b7;"></span>
+        </div>
+        <div class="preset-row">
+          <input type="password" id="geminiApiKeyInput" placeholder="AIzaSy... を貼り付け">
+          <button class="preset-btn" id="saveApiKeyBtn">保存</button>
+        </div>
+      </div>
+    </div>
+
     <!-- プリセット -->
     <div class="card">
       <div class="preset-row">
@@ -573,6 +638,16 @@
     const savePresetBtn = document.getElementById('savePresetBtn');
     const deletePresetBtn = document.getElementById('deletePresetBtn');
 
+    // AI関連要素
+    const aiFocusSelect = document.getElementById('aiFocusSelect');
+    const generateAiMenuBtn = document.getElementById('generateAiMenuBtn');
+    const aiReasonBox = document.getElementById('aiReasonBox');
+    const toggleApiKeyBtn = document.getElementById('toggleApiKeyBtn');
+    const apiKeyPanel = document.getElementById('apiKeyPanel');
+    const geminiApiKeyInput = document.getElementById('geminiApiKeyInput');
+    const saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
+    const apiKeyStatusBadge = document.getElementById('apiKeyStatusBadge');
+
     const openHistoryBtn = document.getElementById('openHistoryBtn');
     const closeHistoryBtn = document.getElementById('closeHistoryBtn');
     const logRunOnlyBtn = document.getElementById('logRunOnlyBtn');
@@ -585,6 +660,7 @@
     const KEY_EX_LIST = 'tabata_seq_exlist_v5';
     const KEY_PRESETS = 'tabata_seq_presets_v5';
     const KEY_HISTORY = 'tabata_seq_history_v5';
+    const KEY_GEMINI_API = 'tabata_gemini_api_key_v1';
 
     let availableExercises = [
       'ダッシュ',
@@ -596,7 +672,6 @@
       'プランクジャック',
       'スクワットジャンプ'
     ];
-    // 重複可能な1セット分の種目配列
     let selectedSequence = ['ダッシュ', 'バーピー', 'ダッシュ'];
 
     let executionQueue = [];
@@ -607,6 +682,143 @@
     let lastSpokenSecond = null;
     let timerInterval = null;
     let wakeLock = null;
+
+    // --- Gemini APIキー管理 ---
+    function initApiKeyUI() {
+      const savedKey = localStorage.getItem(KEY_GEMINI_API) || '';
+      geminiApiKeyInput.value = savedKey;
+      if (savedKey) {
+        apiKeyStatusBadge.textContent = '✓ 保存済';
+        apiKeyPanel.classList.remove('open');
+      } else {
+        apiKeyStatusBadge.textContent = '未設定';
+        apiKeyPanel.classList.add('open');
+      }
+    }
+
+    toggleApiKeyBtn.addEventListener('click', () => {
+      apiKeyPanel.classList.toggle('open');
+    });
+
+    saveApiKeyBtn.addEventListener('click', () => {
+      const key = geminiApiKeyInput.value.trim();
+      if (!key) {
+        localStorage.removeItem(KEY_GEMINI_API);
+        apiKeyStatusBadge.textContent = '未設定';
+        alert('APIキーを削除しました。');
+        return;
+      }
+      localStorage.setItem(KEY_GEMINI_API, key);
+      apiKeyStatusBadge.textContent = '✓ 保存済';
+      apiKeyPanel.classList.remove('open');
+      alert('Gemini APIキーをブラウザに保存しました。');
+    });
+
+    // --- Gemini API メニュー生成 ---
+    async function generateMenuWithGemini() {
+      const apiKey = localStorage.getItem(KEY_GEMINI_API);
+      if (!apiKey) {
+        apiKeyPanel.classList.add('open');
+        alert('先に「Gemini API Key」を入力して保存してください。');
+        return;
+      }
+
+      const focusTheme = aiFocusSelect.value;
+      const recentHistory = getHistory()
+        .filter(h => !h.isRunOnly && h.config && Array.isArray(h.config.sequence))
+        .slice(0, 3)
+        .map(h => `${h.date}: ${h.config.sequence.join('→')}`)
+        .join(' / ');
+
+      const promptText = `あなたはプロのS&C（ストレングス＆コンディショニング）コーチです。
+体重約80kg・1ヶ月で3kg減量を目指すランナー向けに、本日のタバタ式トレーニングメニューを1つ作成してください。
+
+【今日のテーマ】
+${focusTheme}
+
+【直近の実施履歴（同じ種目ばかり連続しないよう変化をつけること）】
+${recentHistory || '履歴なし'}
+
+【既存種目リスト（これらを活用しつつ、必要なら音声読み上げしやすい短い日本語種目名を新規提案してもよい）】
+${availableExercises.join('、')}
+
+【出力ルール】
+・1セットあたり4種目〜8種目（通常タバタなら4種目を2セット、または8種目を1セットなど）で構成すること。
+・音声読み上げ（speechSynthesis）で聞いてすぐ動作がわかる短く明確な日本語の種目名にすること（例：「ハイニー」「バイシクルクランチ」「プッシュアップ」「スロースクワット」等）。
+・以下のJSONスキーマに厳密に従って出力すること。`;
+
+      generateAiMenuBtn.disabled = true;
+      generateAiMenuBtn.textContent = '生成中...';
+      aiReasonBox.style.display = 'none';
+
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: promptText }] }],
+              generationConfig: {
+                responseMimeType: 'application/json',
+                responseSchema: {
+                  type: 'OBJECT',
+                  properties: {
+                    prepSec: { type: 'INTEGER', description: '準備時間（秒）。通常5〜10' },
+                    workSec: { type: 'INTEGER', description: '運動時間（秒）。通常15〜20' },
+                    restSec: { type: 'INTEGER', description: '休憩時間（秒）。通常5〜15' },
+                    sets: { type: 'INTEGER', description: 'セット数。1〜4' },
+                    sequence: {
+                      type: 'ARRAY',
+                      items: { type: 'STRING' },
+                      description: '1セット内の種目名の順番配列（4〜8個）'
+                    },
+                    coachNote: {
+                      type: 'STRING',
+                      description: '今日のメニューの狙いとフォームのワンポイントアドバイス（60文字以内）'
+                    }
+                  },
+                  required: ['prepSec', 'workSec', 'restSec', 'sets', 'sequence', 'coachNote']
+                }
+              }
+            })
+          }
+        );
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error?.message || `HTTPエラー: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!rawText) throw new Error('AIからの応答が空でした。');
+
+        const menu = JSON.parse(rawText);
+        if (!Array.isArray(menu.sequence) || menu.sequence.length === 0) {
+          throw new Error('種目リストの生成に失敗しました。');
+        }
+
+        applyConfig({
+          prepSec: menu.prepSec,
+          workSec: menu.workSec,
+          restSec: menu.restSec,
+          sets: menu.sets,
+          sequence: menu.sequence
+        }, false);
+
+        presetSelect.value = '';
+        aiReasonBox.textContent = `💡 ${menu.coachNote}`;
+        aiReasonBox.style.display = 'block';
+      } catch (err) {
+        alert(`メニュー生成エラー:\n${err.message}\n\nAPIキーが正しいか、通信環境をご確認ください。`);
+      } finally {
+        generateAiMenuBtn.disabled = false;
+        generateAiMenuBtn.textContent = 'AI生成';
+      }
+    }
+
+    generateAiMenuBtn.addEventListener('click', generateMenuWithGemini);
 
     function setupAudioSession() {
       if ('audioSession' in navigator) {
@@ -721,7 +933,7 @@
       updateIdleDisplay();
     });
 
-    // キュー構築（Prep → [Work + Rest] × selectedSequence.length を セット数分繰り返す）
+    // キュー構築
     function buildFullQueue() {
       const prepSec = parseInt(prepSecInput.value, 10) || 0;
       const workSec = Math.max(1, parseInt(workSecInput.value, 10) || 10);
@@ -1193,6 +1405,7 @@
     });
 
     // 初期化
+    initApiKeyUI();
     loadExerciseList();
     renderPresetSelect();
     loadCurrentConfig();
